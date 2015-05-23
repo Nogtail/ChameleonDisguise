@@ -1,0 +1,8 @@
+name: ChameleonDisguise
+version: 0.1
+author: Nogtail
+main: com.koubal.chameleondisguise.ChameleonDisguise
+depend: [Chameleon]
+commands:
+  disguise:
+    description: Disguise yourself!

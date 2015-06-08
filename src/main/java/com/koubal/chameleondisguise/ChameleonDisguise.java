@@ -1,6 +1,5 @@
 package com.koubal.chameleondisguise;
 
-import com.google.common.collect.Multimap;
 import com.koubal.chameleon.AsyncPlayerTagEvent;
 import com.koubal.chameleon.Chameleon;
 import org.bukkit.Bukkit;
@@ -11,7 +10,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,7 +31,7 @@ public class ChameleonDisguise extends JavaPlugin implements Listener {
 
 	@Override
 	public boolean onCommand(final CommandSender sender, Command command, String label, String[] arguments) {
-		if (!label.equalsIgnoreCase("disguise")) {
+		if (!label.equalsIgnoreCase("cdisguise")) {
 			return true;
 		}
 
@@ -72,20 +70,25 @@ public class ChameleonDisguise extends JavaPlugin implements Listener {
 			textures = tag;
 		}
 
+		if (textures.length() > 16 || tag.length() > 16) {
+			sender.sendMessage("Length must be less than 16 characters!");
+			return true;
+		}
+
 		disguises.put(uuid, new Disguise(tag, textures));
-		player.setPlayerListName(tag);
 
 		Bukkit.getScheduler().runTaskAsynchronously(this, new Runnable() { // Run task async so we can load the players skin without any lag on the main thread
 			@Override
 			public void run() {
-				if (!Chameleon.getInstance().isCached(textures)) // This checks to see if the skin is cached, by default cached skins will expire in 1 hour
+				if (!Chameleon.getInstance().isCached(textures)){ // This checks to see if the skin is cached, by default cached skins will expire in 1 hour
 					sender.sendMessage("Skin loading!");
-
-				Chameleon.getInstance().loadTextures(textures); // This causes the textures for a specified player to be loaded and cached
+					Chameleon.getInstance().loadTextures(textures); // This causes the textures for a specified player to be loaded and cached
+				}
 
 				Bukkit.getScheduler().runTask(ChameleonDisguise.this, new Runnable() {
 					@Override
 					public void run() {
+						player.setPlayerListName(tag);
 						Chameleon.getInstance().updateViewers(player);
 						Chameleon.getInstance().update(player);
 						sender.sendMessage("You have disguised as " + tag + " with the skin of " + textures + "!");
